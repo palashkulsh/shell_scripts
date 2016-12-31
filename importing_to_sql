@@ -1,1 +1,4 @@
 awk '{FS=","}{if($3=="NA")$3=0;printf("(\\\"%s\\\",\\\"%s\\\",%s)\n",$1,$2,$3);}' correlation.csv | parallel -n 100 echo {} | sed 's/) (/), (/g' | xargs -I {} echo "insert into correlation (symbol1,symbol2,value) values {};" | parallel -P 100 mysql -ustocks_user -pstocks_pass -hlocalhost stocks -e {}
+
+
+awk '{FS=","}{s1=$1;s2=$2;$1="";$2="";s3=$0;gsub(/^[ ]/,"",s3);gsub(/^[ ]/,"",s3);gsub(/ /,",",s3);printf("(\\\"%s\\\",\\\"%s\\\",\\\"%s\\\")\n",s1,s2,s3)}' compressedcrosscorrelation.csv | parallel -n 200 echo {} | sed 's/) (/), (/g' | xargs -I {} echo "insert into crosscor (symbol1,symbol2,value) values "{} | parallel -P 100 mysql -ustocks_user -pstocks_pass -hlocalhost stocks -e {}
