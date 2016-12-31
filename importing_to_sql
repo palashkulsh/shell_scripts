@@ -1,0 +1,1 @@
+awk '{FS=","}{if($3=="NA")$3=0;printf("(\\\"%s\\\",\\\"%s\\\",%s)\n",$1,$2,$3);}' correlation.csv | parallel -n 100 echo {} | sed 's/) (/), (/g' | xargs -I {} echo "insert into correlation (symbol1,symbol2,value) values {};" | parallel -P 100 mysql -ustocks_user -pstocks_pass -hlocalhost stocks -e {}
